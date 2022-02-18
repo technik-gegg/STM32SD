@@ -11,6 +11,7 @@
  (C) Copyright 2010 SparkFun Electronics
 
  Modified by Frederic Pillon <frederic.pillon@st.com> for STMicroelectronics
+ Modified by Technik Gegg for Arduino libraries compatibility 2022/02
 
  */
 
@@ -30,7 +31,8 @@ uint8_t const LS_SIZE = 2;
 /** ls() flag for recursive list of subdirectories */
 uint8_t const LS_R = 4;
 
-class File {
+// added inheritance of Print, as done in Arduino libs 2022/02 Technik.Gegg
+class File : public Print {
   public:
     File(FRESULT res = FR_OK);
     virtual size_t write(uint8_t);
@@ -47,6 +49,11 @@ class File {
     uint32_t size();
     void close();
     operator bool();
+    // added 2022/02 Technik.Gegg
+    int fgets(TCHAR* buf, size_t len);
+    bool rewind() {
+      return seek(0); 
+    };
 
     char *name(void);
     char *fullname(void)
@@ -62,11 +69,12 @@ class File {
     virtual size_t println(const char *data);
     virtual size_t println(String &data);
 
-    // Print to Serial line
-    void ls(uint8_t flags, uint8_t indent = 0);
-    static void printFatDate(uint16_t fatDate);
-    static void printFatTime(uint16_t fatTime);
-    static void printTwoDigits(uint8_t v);
+    // added optional parameter 'print' 2022/02 Technik.Gegg
+    // Print to Serial line or to instance referenced in parameter print
+    void ls(uint8_t flags, uint8_t indent = 0, Print* print = &Serial);
+    static void printFatDate(uint16_t fatDate, Print* print);
+    static void printFatTime(uint16_t fatTime, Print* print);
+    static void printTwoDigits(uint8_t v, Print* print);
 
 
     char *_name = NULL; //file or dir name
